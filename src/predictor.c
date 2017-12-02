@@ -71,6 +71,17 @@ uint8_t local_predictor (uint32_t pc)
 else 
   return 1;
 }
+void init_tournament()
+{
+    global_pred = malloc((int)(pow(2,ghistoryBits))*sizeof(uint8_t));
+    choice_pred = malloc((int)(pow(2,ghistoryBits))*sizeof(uint8_t));
+    local_pred = malloc((int)(pow(2,lhistoryBits))*sizeof(uint8_t));
+    Local_History_Table =malloc((int)(pow(2,pcIndexBits))*sizeof(uint32_t));
+    memset(global_pred,1,sizeof(global_pred));
+    memset(local_pred,1,sizeof(local_pred));
+    memset(Local_History_Table,0,sizeof(Local_History_Table));
+    memset(choice_pred,2,sizeof(choice_pred));
+}
 
 int i;
 void
@@ -91,15 +102,8 @@ init_predictor()
   } 
   if (bpType == TOURNAMENT)
   {
-    global_history=0;
-    global_pred = malloc((int)(pow(2,ghistoryBits))*sizeof(uint8_t));
-    choice_pred = malloc((int)(pow(2,ghistoryBits))*sizeof(uint8_t));
-    local_pred = malloc((int)(pow(2,lhistoryBits))*sizeof(uint8_t));
-    Local_History_Table =malloc((int)(pow(2,pcIndexBits))*sizeof(uint32_t));
-    memset(global_pred,1,sizeof(global_pred));
-    memset(local_pred,1,sizeof(local_pred));
-    memset(Local_History_Table,0,sizeof(Local_History_Table));
-    memset(choice_pred,2,sizeof(choice_pred));
+   global_history=0;
+   init_tournament();
   }
 }
 
