@@ -92,18 +92,16 @@ else
   return 1;
 }
 
-
-
 void init_tournament()
 {
     global_pred = malloc((int)(pow(2,ghistoryBits))*sizeof(uint8_t));
     choice_pred = malloc((int)(pow(2,ghistoryBits))*sizeof(uint8_t));
     local_pred = malloc((int)(pow(2,lhistoryBits))*sizeof(uint8_t));
     Local_History_Table =malloc((int)(pow(2,pcIndexBits))*sizeof(uint32_t));
-    memset(global_pred,1,sizeof(global_pred));
-    memset(local_pred,1,sizeof(local_pred));
-    memset(Local_History_Table,0,sizeof(Local_History_Table));
-    memset(choice_pred,2,sizeof(choice_pred));
+    memset(global_pred,1,(pow(2,ghistoryBits))*sizeof(uint8_t));
+    memset(local_pred,1,(pow(2,lhistoryBits))*sizeof(uint8_t));
+    memset(Local_History_Table,0,(pow(2,pcIndexBits))*sizeof(uint32_t));
+    memset(choice_pred,2,(int)(pow(2,ghistoryBits))*sizeof(uint8_t));
 }
 
 void update_tournament(uint32_t pc, uint8_t outcome)
@@ -138,7 +136,6 @@ void update_tournament(uint32_t pc, uint8_t outcome)
             local_pred[temp]++;
           }
       //Updating my Local Branch History Table
-         //Local_History_Table_Index = pc&((int)(pow(2,pcIndexBits))-1);
          Local_History_Table[Local_History_Table_Index] = (Local_History_Table[Local_History_Table_Index] << 1);
          Local_History_Table[Local_History_Table_Index] = Local_History_Table[Local_History_Table_Index] &((int)(pow(2,lhistoryBits))-1);
          Local_History_Table[Local_History_Table_Index] = Local_History_Table[Local_History_Table_Index] | outcome;
@@ -172,7 +169,7 @@ init_predictor()
   {
     global_history=0;
     BHT = malloc((int)(pow(2,ghistoryBits))*sizeof(uint8_t)); // 0 - Strong NT; 1 - Weak NT; 2 - Weak Taken; 3 - Strong Taken
-    memset(BHT,1,sizeof(BHT));
+    memset(BHT,1,(pow(2,ghistoryBits))*sizeof(uint8_t));
   } 
 
   if (bpType == TOURNAMENT)
@@ -204,18 +201,19 @@ make_prediction(uint32_t pc)
       if (pred == 0 || pred ==1 )
         return NOTTAKEN;
       else
-        return TAKEN;        
+        return TAKEN; 
+      break;       
     case TOURNAMENT:
+    
       my_global_prediction = global_predictor(global_history);
       my_local_prediction = local_predictor(pc);
       my_choice_prediction = choice_pred[global_history&((int)(pow(2,ghistoryBits)) -1)];
-      //if (count <5) {printf("global = %d local = %d choice = %d \n ",my_global_prediction,my_local_prediction,my_choice_prediction); count++;}
       if ((my_choice_prediction == 0) || (my_choice_prediction ==1))
         my_prediction = my_local_prediction;
       else
         my_prediction = my_global_prediction;
-      //printf("my_prediction: %d\n", my_prediction );
       return my_prediction;
+      break;
     case CUSTOM:
     default:
       break;
@@ -234,34 +232,19 @@ void
 train_predictor(uint32_t pc, uint8_t outcome)
 {
   //
+
   //TODO: Implement Predictor training
   //
-  //printf("%d\n",outcome);
   switch (bpType) {
 
 
     case GSHARE:
-    //update_gshare(pc, outcome);
-      temp = (pc ^ global_history)&((int)(pow(2,ghistoryBits))-1);
-
-      if (outcome == 0)
-      {
-        if (BHT[temp] != 0)
-          BHT[temp] = BHT[temp] -1;
-          }
-        
-      if (outcome == 1)
-         {
-          if (BHT[temp]!= 3 )
-            BHT[temp] = BHT[temp] +1;
-            }
-      global_history = (global_history << 1);  
-      global_history= global_history | outcome;
-
+    update_gshare(pc, outcome);
+    break;
 
     case TOURNAMENT:
-
-      update_tournament(pc,outcome);      
+      update_tournament(pc,outcome);    
+      break;  
       
     default:
       break;
